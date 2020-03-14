@@ -11,19 +11,19 @@
   },
   "dependencies": {
     "graphql-tag": "^2.10.3",
-    "graphql-tools": "^4.0.7"
+    "graphql-tools": "4.0.7"
   },
   "devDependencies": {
-    "@types/jest": "^25.1.3",
-    "@types/lodash": "^4.14.149",
-    "graphql": "^14.6.0",
+    "@types/jest": "25.1.4",
+    "@types/lodash": "4.14.149",
+    "graphql": "14.6.0",
     "jest": "25.1.0",
-    "lodash": "^4.17.15",
+    "lodash": "4.17.15",
     "ts-jest": "^25.2.1",
-    "typescript": "^3.8.3"
+    "typescript": "3.8.3"
   },
   "peerDependencies": {
-    "graphql": "^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.x",
-    "lodash": "^4.x"
+    "graphql": "14.6.0",
+    "lodash": "4.17.15"
   }
 }
