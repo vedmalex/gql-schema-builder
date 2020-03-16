@@ -1,10 +1,10 @@
 // NOTE: Currently using a slightly modified print instead of the exported graphql version.
-import { parse, print, ASTNode } from 'graphql';
-import * as _ from 'lodash';
+import { parse, print, ASTNode } from 'graphql'
+import * as _ from 'lodash'
 
-import { Kind } from 'graphql';
+import { Kind } from 'graphql'
 
-const isObjectTypeDefinition = def =>
+const isObjectTypeDefinition = (def: ASTNode) =>
   def.kind === Kind.OBJECT_TYPE_DEFINITION ||
   def.kind === Kind.INPUT_OBJECT_TYPE_DEFINITION ||
   def.kind === Kind.ENUM_TYPE_DEFINITION ||
@@ -18,69 +18,69 @@ const isObjectTypeDefinition = def =>
   def.kind === Kind.INTERFACE_TYPE_EXTENSION ||
   def.kind === Kind.OBJECT_TYPE_EXTENSION ||
   def.kind === Kind.SCALAR_TYPE_EXTENSION ||
-  def.kind === Kind.UNION_TYPE_EXTENSION;
+  def.kind === Kind.UNION_TYPE_EXTENSION
 
 function compareNode(curr, other) {
   if (curr.kind === Kind.NAME) {
-    return curr.value === other.value;
+    return curr.value === other.value
   } else {
-    return curr.name.value === other.name.value;
+    return curr.name.value === other.name.value
   }
 }
 
 function mergeDefinitions(objValue, srcValue) {
-  let same = _.intersectionWith(srcValue, objValue, compareNode);
-  let created = _.differenceWith(srcValue, objValue, compareNode);
-  let last = _.differenceWith(objValue, srcValue, compareNode);
-  return last.concat(same, created);
+  const same = _.intersectionWith(srcValue, objValue, compareNode)
+  const created = _.differenceWith(srcValue, objValue, compareNode)
+  const last = _.differenceWith(objValue, srcValue, compareNode)
+  return last.concat(same, created)
 }
 
 function nodeMerger(objValue, srcValue, key, object, source, stack) {
   if (stack.size === 0) {
     if (!object.hasOwnProperty(key)) {
-      return srcValue;
+      return srcValue
     }
   } else {
     switch (key) {
       case 'kind': {
         if (!object.kind.match(/Definition/)) {
           if (source.kind.match(/Definition/)) {
-            return srcValue;
+            return srcValue
           } else {
-            return object.kind.replace(/Extension/i, 'Definition');
+            return object.kind.replace(/Extension/i, 'Definition')
           }
         } else {
-          return objValue;
+          return objValue
         }
       }
       case 'loc':
-        return objValue;
+        return objValue
       case 'name':
-        return objValue;
+        return objValue
       case 'directives':
-        return mergeDefinitions(objValue, srcValue);
+        return mergeDefinitions(objValue, srcValue)
       case 'fields':
-        return mergeDefinitions(objValue, srcValue);
+        return mergeDefinitions(objValue, srcValue)
       case 'values':
-        return mergeDefinitions(objValue, srcValue);
+        return mergeDefinitions(objValue, srcValue)
       case 'types':
-        return mergeDefinitions(objValue, srcValue);
+        return mergeDefinitions(objValue, srcValue)
       case 'interfaces':
-        return mergeDefinitions(objValue, srcValue);
+        return mergeDefinitions(objValue, srcValue)
       case 'arguments':
-        return mergeDefinitions(objValue, srcValue);
+        return mergeDefinitions(objValue, srcValue)
       case 'locations':
-        return mergeDefinitions(objValue, srcValue);
+        return mergeDefinitions(objValue, srcValue)
       default:
-        return;
+        return
     }
   }
 }
 
-const _makeMergedDefinitions = defs => {
+const _makeMergedDefinitions = (defs) => {
   // TODO: This function can be cleaner!
   const groupedMergeableDefinitions = defs
-    .filter(def => isObjectTypeDefinition(def))
+    .filter((def) => isObjectTypeDefinition(def))
     .reduce((mergeableDefs, def) => {
       return _.mergeWith(
         mergeableDefs,
@@ -90,35 +90,35 @@ const _makeMergedDefinitions = defs => {
             : 'schema']: def,
         },
         nodeMerger,
-      );
-    }, {});
+      )
+    }, {})
 
   return Object.values(groupedMergeableDefinitions).reduce(
-    (array: {}[], def) => (def ? [...array, def] : array),
+    (array: Array<object>, def) => (def ? [...array, def] : array),
     [],
-  );
-};
+  )
+}
 
-const _makeDocumentWithDefinitions = definitions => ({
+const _makeDocumentWithDefinitions = (definitions) => ({
   kind: 'Document',
   definitions: definitions instanceof Array ? definitions : [definitions],
-});
+})
 
-const printDefinitions = defs =>
-  print(_makeDocumentWithDefinitions(defs) as ASTNode);
+const printDefinitions = (defs) =>
+  print(_makeDocumentWithDefinitions(defs) as ASTNode)
 
-const mergeTypes = types => {
+const mergeTypes = (types) => {
   const allDefs = types
-    .map(type => {
+    .map((type) => {
       if (typeof type === 'string') {
-        return parse(type);
+        return parse(type)
       }
-      return type;
+      return type
     })
-    .map(ast => ast.definitions)
-    .reduce((defs, newDef) => [...defs, ...newDef], []);
-  const mergedDefs = _makeMergedDefinitions(allDefs);
-  return printDefinitions(mergedDefs);
-};
+    .map((ast) => ast.definitions)
+    .reduce((defs, newDef) => [...defs, ...newDef], [])
+  const mergedDefs = _makeMergedDefinitions(allDefs)
+  return printDefinitions(mergedDefs)
+}
 
-export default mergeTypes;
+export default mergeTypes
