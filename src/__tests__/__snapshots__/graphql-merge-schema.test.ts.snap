@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Merger Merges UNIONS: unions 1`] = `
+"union ACL
+"
+`;
+
+exports[`Merger merge classes: schema 1`] = `
+"type Query {
+  login(user: String, password: String): Boolean @acl(level: ANONYMOUS)
+  logout(user: String): Boolean @acl(level: AUTHENTICATED)
+}
+
+directive @acl(level: [Acl] = [AUTHENTICATED]) on OBJECT | FIELD_DEFINITION
+"
+`;
