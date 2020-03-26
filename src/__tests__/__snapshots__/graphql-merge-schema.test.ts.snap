@@ -1,7 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Merger Merges UNIONS: unions 1`] = `
-"union ACL
+exports[`Merger Merges UNIONS: snap 1`] = `
+"enum ACL {
+  ADMIN
+  AUTHENTICATED
+  STUDENT
+  EXAMINTOR
+  VIEWER
+}
 "
 `;
 
