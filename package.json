@@ -18,13 +18,13 @@
     "@types/lodash": "4.14.149",
     "graphql": "14.6.0",
     "jest": "25.1.0",
-    "lodash": "4.17.15",
+    "lodash": "4.17.19",
     "ts-jest": "^25.2.1",
     "typescript": "3.8.3"
   },
   "peerDependencies": {
     "graphql": "14.6.0",
-    "lodash": "4.17.15"
+    "lodash": "4.17.19"
   },
   "jest": {
     "testEnvironment": "node"
