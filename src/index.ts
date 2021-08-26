@@ -296,13 +296,13 @@ export abstract class GQLType<Reslvr = any> implements Readonly<IGQLTypeDef> {
     args: IGQLBaseInput<Reslvr> | IGQLInput<Reslvr> | string | DocumentNode,
   ) {
     if (isValidInput(args)) {
-      if (isValidSchema(args)) {
-        this.attachSchema(args)
-        this._name = this.resolveName(args)
-      } else {
+      if (isIGQLInput(args)) {
         this.attachSchema(args.schema)
         this.attachResolver(args.resolver)
         this._name = this.resolveName(args.schema)
+      } else if (isValidSchema(args)) {
+        this.attachSchema(args)
+        this._name = this.resolveName(args)
       }
     }
   }
