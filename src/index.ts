@@ -12,6 +12,7 @@ import {
   GraphQLScalarType,
   NamedTypeNode,
 } from 'graphql'
+
 import _ = require('lodash')
 
 export type ResolverFunction = (
@@ -123,14 +124,12 @@ export function isValidInput(
   }
 }
 
-export function isValidSchema(inp: any): inp is string | DocumentNode {
+export function isValidSchema(inp: unknown): inp is string | DocumentNode {
   if (typeof inp === 'object') {
-    try {
-      print(inp)
-    } catch {
-      return false
-    }
-    return true
+    return (
+      (inp as DocumentNode).kind == 'Document' &&
+      Array.isArray((inp as DocumentNode).definitions)
+    )
   } else if (typeof inp === 'string') {
     try {
       parse(inp)
@@ -285,9 +284,9 @@ export abstract class GQLType<Reslvr = any> implements Readonly<IGQLTypeDef> {
   protected resolveName(schema: string | DocumentNode | undefined) {
     const parsed = typeof schema === 'string' ? parse(schema) : schema
     if (parsed && parsed.definitions) {
-      return ((parsed.definitions[0] as any) as NamedTypeNode).name.value
+      return (parsed.definitions[0] as any as NamedTypeNode).name.value
     } else if (parsed && parsed.hasOwnProperty('name')) {
-      return ((parsed as any) as NamedTypeNode).name.value
+      return (parsed as any as NamedTypeNode).name.value
     } else {
       throw new Error('nonsence')
     }
@@ -343,8 +342,10 @@ export class Directive extends GQLType {
   }
 }
 
-export class Fields<Reslvr> extends GQLType<Reslvr>
-  implements Readonly<IGQLTypeDef> {
+export class Fields<Reslvr>
+  extends GQLType<Reslvr>
+  implements Readonly<IGQLTypeDef>
+{
   protected _rootName: string
   protected resolveName(schema: string | DocumentNode) {
     const parsed = typeof schema === 'string' ? parse(schema) : schema
@@ -381,8 +382,10 @@ export class Fields<Reslvr> extends GQLType<Reslvr>
   }
 }
 
-export class Query extends Fields<ResolverFunction>
-  implements Readonly<IGQLTypeDef> {
+export class Query
+  extends Fields<ResolverFunction>
+  implements Readonly<IGQLTypeDef>
+{
   constructor(args: IGQLInput<ResolverFunction> | string | DocumentNode) {
     super(args)
     this._type = ModelType.query
@@ -390,8 +393,10 @@ export class Query extends Fields<ResolverFunction>
   }
 }
 
-export class Mutation extends Fields<ResolverFunction>
-  implements Readonly<IGQLTypeDef> {
+export class Mutation
+  extends Fields<ResolverFunction>
+  implements Readonly<IGQLTypeDef>
+{
   constructor(args: IGQLInput<ResolverFunction> | string | DocumentNode) {
     super(args)
     this._type = ModelType.mutation
@@ -408,8 +413,10 @@ export type SubscriptionResolver = {
   subscribe: ResolverFunction
 }
 
-export class Subscription extends Fields<SubscriptionResolver>
-  implements Readonly<IGQLTypeDef> {
+export class Subscription
+  extends Fields<SubscriptionResolver>
+  implements Readonly<IGQLTypeDef>
+{
   constructor(args: IGQLInput<SubscriptionResolver> | string | DocumentNode) {
     super(args)
     this._type = ModelType.subscription
@@ -417,8 +424,10 @@ export class Subscription extends Fields<SubscriptionResolver>
   }
 }
 
-export class Type extends GQLType<ResolverFunction | ObjectResolver>
-  implements Readonly<IGQLTypeDef> {
+export class Type
+  extends GQLType<ResolverFunction | ObjectResolver>
+  implements Readonly<IGQLTypeDef>
+{
   public resolveExtend(schema: string | DocumentNode) {
     const parsed = typeof schema === 'string' ? parse(schema) : schema
     let extend = false
@@ -452,8 +461,10 @@ export class Input extends GQLType implements Readonly<IGQLTypeDef> {
   }
 }
 
-export class Union extends GQLType<UnionInterfaceResolverFunction>
-  implements Readonly<IGQLTypeDef> {
+export class Union
+  extends GQLType<UnionInterfaceResolverFunction>
+  implements Readonly<IGQLTypeDef>
+{
   constructor(
     args: IGQLInput<UnionInterfaceResolverFunction> | string | DocumentNode,
   ) {
@@ -476,8 +487,10 @@ export class Union extends GQLType<UnionInterfaceResolverFunction>
   }
 }
 
-export class Interface extends GQLType<UnionInterfaceResolverFunction>
-  implements Readonly<IGQLTypeDef> {
+export class Interface
+  extends GQLType<UnionInterfaceResolverFunction>
+  implements Readonly<IGQLTypeDef>
+{
   constructor(
     args: IGQLInput<UnionInterfaceResolverFunction> | string | DocumentNode,
   ) {
@@ -511,8 +524,10 @@ function isCustomScalar(inp: {
   )
 }
 
-export class Scalar extends GQLType<ScalarResolver>
-  implements Readonly<IGQLTypeDef> {
+export class Scalar
+  extends GQLType<ScalarResolver>
+  implements Readonly<IGQLTypeDef>
+{
   constructor(args: IGQLInput<ScalarResolver> | string | DocumentNode) {
     super(args)
     this._type = ModelType.scalar
@@ -534,8 +549,10 @@ export class Scalar extends GQLType<ScalarResolver>
   }
 }
 
-export class Enum extends GQLType<IEnumResolver>
-  implements Readonly<IGQLTypeDef> {
+export class Enum
+  extends GQLType<IEnumResolver>
+  implements Readonly<IGQLTypeDef>
+{
   public get resolver(): IResolvers | undefined {
     return this._resolver && this.name
       ? { [this.name]: this._resolver }

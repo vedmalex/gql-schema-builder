@@ -67,19 +67,14 @@ function isValidInput(inp) {
 exports.isValidInput = isValidInput;
 function isValidSchema(inp) {
     if (typeof inp === 'object') {
-        try {
-            graphql_1.print(inp);
-        }
-        catch (_a) {
-            return false;
-        }
-        return true;
+        return (inp.kind == 'Document' &&
+            Array.isArray(inp.definitions));
     }
     else if (typeof inp === 'string') {
         try {
-            graphql_1.parse(inp);
+            (0, graphql_1.parse)(inp);
         }
-        catch (_b) {
+        catch (_a) {
             return false;
         }
         return true;
@@ -137,7 +132,7 @@ class GQLType {
                 schema = inp;
             }
             else if (typeof inp === 'string') {
-                schema = graphql_1.parse(inp);
+                schema = (0, graphql_1.parse)(inp);
             }
             if (type) {
                 if (isValidInput(inp)) {
@@ -214,7 +209,7 @@ class GQLType {
         return;
     }
     resolveName(schema) {
-        const parsed = typeof schema === 'string' ? graphql_1.parse(schema) : schema;
+        const parsed = typeof schema === 'string' ? (0, graphql_1.parse)(schema) : schema;
         if (parsed && parsed.definitions) {
             return parsed.definitions[0].name.value;
         }
@@ -241,11 +236,11 @@ class GQLType {
         if (isValidSchema(value)) {
             if (typeof value === 'string') {
                 this._schema = value;
-                this._schemaAST = graphql_1.parse(value);
+                this._schemaAST = (0, graphql_1.parse)(value);
             }
             else {
                 this._schemaAST = value;
-                this._schema = graphql_1.print(value);
+                this._schema = (0, graphql_1.print)(value);
             }
         }
     }
@@ -266,9 +261,9 @@ class Fields extends GQLType {
         this.checkSchema();
     }
     resolveName(schema) {
-        const parsed = typeof schema === 'string' ? graphql_1.parse(schema) : schema;
+        const parsed = typeof schema === 'string' ? (0, graphql_1.parse)(schema) : schema;
         let name;
-        graphql_1.visit(parsed, {
+        (0, graphql_1.visit)(parsed, {
             [graphql_1.Kind.FIELD_DEFINITION](node) {
                 name = node.name.value;
             },
@@ -276,9 +271,9 @@ class Fields extends GQLType {
         return name;
     }
     resolveRootName(schema) {
-        const parsed = typeof schema === 'string' ? graphql_1.parse(schema) : schema;
+        const parsed = typeof schema === 'string' ? (0, graphql_1.parse)(schema) : schema;
         let rootName;
-        graphql_1.visit(parsed, {
+        (0, graphql_1.visit)(parsed, {
             [graphql_1.Kind.OBJECT_TYPE_DEFINITION](node) {
                 rootName = node.name.value;
             },
@@ -321,9 +316,9 @@ class Subscription extends Fields {
 exports.Subscription = Subscription;
 class Type extends GQLType {
     resolveExtend(schema) {
-        const parsed = typeof schema === 'string' ? graphql_1.parse(schema) : schema;
+        const parsed = typeof schema === 'string' ? (0, graphql_1.parse)(schema) : schema;
         let extend = false;
-        graphql_1.visit(parsed, {
+        (0, graphql_1.visit)(parsed, {
             [graphql_1.Kind.OBJECT_TYPE_EXTENSION]() {
                 extend = true;
             },
@@ -554,9 +549,9 @@ class Schema extends GQLType {
                 this._items
                     .filter((i) => i instanceof Schema)
                     .forEach((i) => i.build());
-                this._schema = graphql_merge_schema_1.default([...this._items.map((i) => i.schema), this._initialSchema].filter((i) => i));
-                this._schemaAST = graphql_1.parse(this._schema);
-                this._resolversClean = this._resolvers = lodash_1.merge(this._resolver, ...this._items
+                this._schema = (0, graphql_merge_schema_1.default)([...this._items.map((i) => i.schema), this._initialSchema].filter((i) => i));
+                this._schemaAST = (0, graphql_1.parse)(this._schema);
+                this._resolversClean = this._resolvers = (0, lodash_1.merge)(this._resolver, ...this._items
                     .map((i) => i instanceof Schema ? i.resolvers : i.resolver)
                     .filter((i) => i));
                 this._compiledHooks = this._items
@@ -583,8 +578,8 @@ class Schema extends GQLType {
             const hookList = Object.keys(modelHooks[i]);
             for (let j = 0, jLen = hookList.length; j < jLen; j++) {
                 const key = hookList[j];
-                const resoler = lodash_1.get(this.resolvers, key);
-                lodash_1.set(this.resolvers, key, modelHooks[i][key](resoler));
+                const resoler = (0, lodash_1.get)(this.resolvers, key);
+                (0, lodash_1.set)(this.resolvers, key, modelHooks[i][key](resoler));
             }
         }
     }

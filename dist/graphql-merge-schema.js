@@ -110,12 +110,12 @@ const _makeDocumentWithDefinitions = (definitions) => ({
     kind: 'Document',
     definitions: definitions instanceof Array ? definitions : [definitions],
 });
-const printDefinitions = (defs) => graphql_1.print(_makeDocumentWithDefinitions(defs));
+const printDefinitions = (defs) => (0, graphql_1.print)(_makeDocumentWithDefinitions(defs));
 const mergeTypes = (types) => {
     const allDefs = types
         .map((type) => {
         if (typeof type === 'string') {
-            return graphql_1.parse(type);
+            return (0, graphql_1.parse)(type);
         }
         return type;
     })

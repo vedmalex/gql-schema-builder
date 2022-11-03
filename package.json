@@ -1,6 +1,6 @@
 {
   "name": "gql-schema-builder",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "dist/index.js",
   "author": "Alex Vedmedenko <vedmalex@gmail.com>",
   "license": "MIT",
@@ -10,20 +10,20 @@
     "prepublish": "tsc --build tsconfig.json"
   },
   "dependencies": {
-    "graphql-tag": "^2.10.3",
+    "graphql-tag": "^2.12.5",
     "graphql-tools": "4.0.7"
   },
   "devDependencies": {
-    "@types/jest": "27.0.1",
-    "@types/lodash": "4.14.172",
-    "graphql": "15.5.1",
-    "jest": "27.0.6",
+    "@types/jest": "27.0.2",
+    "@types/lodash": "4.14.175",
+    "graphql": "15.6.1",
+    "jest": "27.2.4",
     "lodash": "4.17.21",
     "ts-jest": "^27.0.5",
-    "typescript": "4.3.5"
+    "typescript": "4.4.3"
   },
   "peerDependencies": {
-    "graphql": "15.5.1",
+    "graphql": "15.6.1",
     "lodash": "4.17.21"
   },
   "jest": {
