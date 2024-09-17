@@ -68,6 +68,7 @@ describe('GQLType', () => {
         updateUser(id: String, payload: UserPayload): String
       }
     `)
+    expect(item).toMatchSnapshot('create Mutation')
     expect(item[0].type).toBe('mutation')
     expect(item[0].name).toBe('updateUser')
   })
@@ -330,6 +331,7 @@ describe('Merge', () => {
     res.fixSchema()
     expect(res.schema).toMatchSnapshot()
   })
+
   it('override__resolvers', async () => {
     const res = new Schema({
       name: 'Person',

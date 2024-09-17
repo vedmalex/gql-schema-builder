@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -22,7 +26,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const graphql_1 = require("graphql");
 const _ = __importStar(require("lodash"));
 const graphql_2 = require("graphql");
-const isObjectTypeDefinition = (def) => def.kind === graphql_2.Kind.OBJECT_TYPE_DEFINITION ||
+const isObjectTypeDefinition = (def) => def.kind === graphql_2.Kind.FRAGMENT_DEFINITION ||
+    def.kind === graphql_2.Kind.OBJECT_TYPE_DEFINITION ||
     def.kind === graphql_2.Kind.INPUT_OBJECT_TYPE_DEFINITION ||
     def.kind === graphql_2.Kind.ENUM_TYPE_DEFINITION ||
     def.kind === graphql_2.Kind.INTERFACE_TYPE_DEFINITION ||
@@ -88,6 +93,8 @@ function nodeMerger(objValue, srcValue, key, object, source, stack) {
             case 'arguments':
                 return mergeDefinitions(objValue, srcValue);
             case 'locations':
+                return mergeDefinitions(objValue, srcValue);
+            case 'selections':
                 return mergeDefinitions(objValue, srcValue);
             default:
                 return;

@@ -38,6 +38,15 @@
       "outFiles": [
         "${workspaceFolder}/dist/**/*.js"
       ]
+    },
+        {
+      "type": "bun",
+      "request": "launch",
+      "name": "Отладка текущего файла Bun",
+      "program": "${file}",
+      "cwd": "${workspaceFolder}",
+      "env": {},
+      "args": []
     }
   ]
 }

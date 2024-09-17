@@ -5,6 +5,7 @@ import * as _ from 'lodash'
 import { Kind } from 'graphql'
 
 const isObjectTypeDefinition = (def: ASTNode) =>
+  def.kind === Kind.FRAGMENT_DEFINITION ||
   def.kind === Kind.OBJECT_TYPE_DEFINITION ||
   def.kind === Kind.INPUT_OBJECT_TYPE_DEFINITION ||
   def.kind === Kind.ENUM_TYPE_DEFINITION ||
@@ -70,6 +71,8 @@ function nodeMerger(objValue, srcValue, key, object, source, stack) {
       case 'arguments':
         return mergeDefinitions(objValue, srcValue)
       case 'locations':
+        return mergeDefinitions(objValue, srcValue)
+      case 'selections':
         return mergeDefinitions(objValue, srcValue)
       default:
         return

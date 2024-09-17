@@ -1,4 +1,14 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Bun Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Merger merge classes: schema 1`] = `
+"type Query {
+  login(user: String, password: String): Boolean @acl(level: ANONYMOUS)
+  logout(user: String): Boolean @acl(level: AUTHENTICATED)
+}
+
+directive @acl(level: [Acl] = [AUTHENTICATED]) on OBJECT | FIELD_DEFINITION
+"
+`;
 
 exports[`Merger Merges UNIONS: snap 1`] = `
 "enum ACL {
@@ -11,12 +21,11 @@ exports[`Merger Merges UNIONS: snap 1`] = `
 "
 `;
 
-exports[`Merger merge classes: schema 1`] = `
-"type Query {
-  login(user: String, password: String): Boolean @acl(level: ANONYMOUS)
-  logout(user: String): Boolean @acl(level: AUTHENTICATED)
+exports[`Merger Merges Fragments: snap 1`] = `
+"fragment User on User {
+  name
+  id
+  someField
 }
-
-directive @acl(level: [Acl] = [AUTHENTICATED]) on OBJECT | FIELD_DEFINITION
 "
 `;

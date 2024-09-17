@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Schema = exports.Enum = exports.Scalar = exports.Interface = exports.Union = exports.Input = exports.Type = exports.Subscription = exports.Mutation = exports.Query = exports.Fields = exports.Directive = exports.GQLType = exports.isValidSchema = exports.isValidInput = exports.isIGQLInput = exports.ModelType = void 0;
+exports.Schema = exports.Fragment = exports.Enum = exports.Scalar = exports.Interface = exports.Union = exports.Input = exports.Type = exports.Subscription = exports.Mutation = exports.Query = exports.Fields = exports.Directive = exports.GQLType = exports.isValidSchema = exports.isValidAST = exports.isValidInput = exports.isIGQLInput = exports.ModelType = void 0;
 const graphql_merge_schema_1 = __importDefault(require("./graphql-merge-schema"));
 const lodash_1 = require("lodash");
 const graphql_1 = require("graphql");
@@ -14,6 +14,7 @@ function isResolverHook(inp) {
 var ModelType;
 (function (ModelType) {
     ModelType["query"] = "query";
+    ModelType["fragment"] = "fragment";
     ModelType["directive"] = "directive";
     ModelType["mutation"] = "mutation";
     ModelType["subscription"] = "subscription";
@@ -27,6 +28,7 @@ var ModelType;
     ModelType["hook"] = "hook";
 })(ModelType = exports.ModelType || (exports.ModelType = {}));
 const typeMap = {
+    [graphql_1.Kind.FRAGMENT_DEFINITION]: ModelType.fragment,
     [graphql_1.Kind.ENUM_TYPE_DEFINITION]: ModelType.enum,
     [graphql_1.Kind.ENUM_TYPE_EXTENSION]: ModelType.enum,
     [graphql_1.Kind.INPUT_OBJECT_TYPE_DEFINITION]: ModelType.input,
@@ -55,7 +57,7 @@ function isValidInput(inp) {
         return isValidSchema(inp.schema) || inp.resolver || inp.type;
     }
     else if (typeof inp === 'object') {
-        return isValidSchema(inp);
+        return isValidSchema(inp) || isValidAST(inp);
     }
     else if (typeof inp === 'string') {
         return isValidSchema(inp);
@@ -65,6 +67,11 @@ function isValidInput(inp) {
     }
 }
 exports.isValidInput = isValidInput;
+function isValidAST(inp) {
+    return (typeof inp === 'object' &&
+        inp.hasOwnProperty('kind'));
+}
+exports.isValidAST = isValidAST;
 function isValidSchema(inp) {
     if (typeof inp === 'object') {
         return (inp.kind == 'Document' &&
@@ -87,16 +94,14 @@ exports.isValidSchema = isValidSchema;
 class GQLType {
     constructor(args) {
         this.complex = false;
-        if (isValidInput(args)) {
-            if (isIGQLInput(args)) {
-                this.attachSchema(args.schema);
-                this.attachResolver(args.resolver);
-                this._name = this.resolveName(args.schema);
-            }
-            else if (isValidSchema(args)) {
-                this.attachSchema(args);
-                this._name = this.resolveName(args);
-            }
+        if (isIGQLInput(args)) {
+            this.attachSchema(args.schema);
+            this.attachResolver(args.resolver);
+            this._name = this.resolveName(args.schema);
+        }
+        else if (isValidAST(args)) {
+            this.attachSchema(args);
+            this._name = this.resolveName(args);
         }
     }
     get isExtend() {
@@ -135,36 +140,36 @@ class GQLType {
                 schema = (0, graphql_1.parse)(inp);
             }
             if (type) {
-                if (isValidInput(inp)) {
-                    switch (type) {
-                        case 'enum':
-                            return new Enum(inp);
-                        case 'input':
-                            return new Input(inp);
-                        case 'interface':
-                            return new Interface(inp);
-                        case 'scalar':
-                            return new Scalar(inp);
-                        case 'union':
-                            return new Union(inp);
-                        case 'type':
-                            return new Type(inp);
-                        case 'query':
-                            return new Query(inp);
-                        case 'mutation':
-                            return new Mutation(inp);
-                        case 'subscription':
-                            return new Subscription(inp);
-                        case 'schema':
-                        default:
-                            throw new Error('unknown type');
-                    }
+                switch (type) {
+                    case 'enum':
+                        return new Enum(inp);
+                    case 'input':
+                        return new Input(inp);
+                    case 'interface':
+                        return new Interface(inp);
+                    case 'scalar':
+                        return new Scalar(inp);
+                    case 'union':
+                        return new Union(inp);
+                    case 'type':
+                        return new Type(inp);
+                    case 'query':
+                        return new Query(inp);
+                    case 'mutation':
+                        return new Mutation(inp);
+                    case 'subscription':
+                        return new Subscription(inp);
+                    case 'schema':
+                    default:
+                        throw new Error('unknown type');
                 }
             }
-            else if (schema && isValidInput(inp)) {
+            else if (schema) {
                 return schema.definitions
                     .map((typedef) => {
                     switch (typeMap[typedef.kind]) {
+                        case ModelType.fragment:
+                            return new Fragment(typedef);
                         case ModelType.enum:
                             return new Enum(typedef);
                         case ModelType.input:
@@ -233,7 +238,7 @@ class GQLType {
         }
     }
     attachSchema(value) {
-        if (isValidSchema(value)) {
+        if (isValidAST(value)) {
             if (typeof value === 'string') {
                 this._schema = value;
                 this._schemaAST = (0, graphql_1.parse)(value);
@@ -429,6 +434,14 @@ class Enum extends GQLType {
     }
 }
 exports.Enum = Enum;
+class Fragment extends GQLType {
+    constructor(args) {
+        super(args);
+        this._type = ModelType.fragment;
+        this.checkSchema();
+    }
+}
+exports.Fragment = Fragment;
 function isValidSchemaInput(inp) {
     if (typeof inp === 'string') {
         return true;
